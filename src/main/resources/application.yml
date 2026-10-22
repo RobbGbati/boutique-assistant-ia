@@ -7,6 +7,11 @@ spring:
       chat:
         # Sans cette ligne, Spring AI cherche "mistral" (valeur par défaut)
         model: llama3.2
+    # Post 2.6 : le service Stock exposé en MCP, sur /mcp
+    mcp:
+      server:
+        name: boutique-stock
+        protocol: STREAMABLE
 
 # Post 1.4 : circuit breaker autour de l'adapter IA
 resilience4j:

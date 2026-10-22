@@ -47,6 +47,7 @@ Chaque classe indique le post qui l'a introduite ou modifiée : rechercher `Post
 | 2.3 Une conversation par client | `post-2-3` | mémoire dans `SpringAiAssistant.conversation`, `Question.clientId`, `client/web/SessionHttp` | `MemoireParClientIT`, `AssistantControllerTest` |
 | 2.4 Tool calling sécurisé | `post-2-4` | `commande/infrastructure/OutilsCommande` (`@Tool` + `ToolContext`) | `OutilsCommandeTest`, `OutilCommandeIT` |
 | 2.5 Streaming | `post-2-5` | `AssistantSupport.repondreEnDirect`, `GET /assistant/direct` (SSE) | `AssistantControllerTest`, `StreamingIT`, `StreamingPlanBTest` |
+| 2.6 Serveur MCP | `post-2-6` | `stock/infrastructure/OutilsStockMcp` (`@McpTool`), `application.yml` | `ServeurMcpTest` |
 
 ## Architecture
 
@@ -66,6 +67,9 @@ remise/domaine/          RemiseService : contrôle d'accès côté code
 commande/                commandes de la boutique
   domaine/               Commande, port Commandes
   infrastructure/        outil @Tool exposé au LLM, dépôt en mémoire
+stock/                   stock de la boutique
+  domaine/               port Stock
+  infrastructure/        outil @McpTool exposé sur /mcp, dépôt en mémoire
 ```
 
 Trajet d'une question :
@@ -105,6 +109,7 @@ Conditions : Ollama en local, `llama3.2` (3,2 B paramètres, Q4_K_M), Apple M4 P
 | 2.4 | Contenu inventé malgré le résultat de l'outil : `EXPEDIEE` restitué avec un délai de livraison absent du résultat ; `INTROUVABLE` (commande d'un autre client) restitué comme « disponible pour la livraison ». | `OutilCommandeIT` |
 | 2.5 | Réponse de 150 mots (254 fragments) : durée totale identique en `call()` et `stream()` (≈ 2,7 s), premier fragment en 20 à 80 ms. | `StreamingIT` |
 | 2.5 | `@CircuitBreaker` sur `repondreEnDirect()` (avec `resilience4j-reactor`) : le flux partage le circuit `assistant` avec `repondre()`. Ollama en 503 : un seul fragment, le message du plan B ; circuit ouvert : aucune requête vers Ollama. | `StreamingPlanBTest` |
+| 2.6 | Serveur MCP (`/mcp`, Streamable HTTP) accessible sans authentification. Annotations par défaut d'un `@McpTool` : `readOnlyHint=false`, `destructiveHint=true`. | `ServeurMcpTest` |
 
 ---
 
