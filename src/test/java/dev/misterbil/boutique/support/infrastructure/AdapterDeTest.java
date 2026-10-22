@@ -1,6 +1,8 @@
 package dev.misterbil.boutique.support.infrastructure;
 
+import dev.misterbil.boutique.commande.infrastructure.OutilsCommande;
 import jakarta.validation.Validation;
+import java.util.Optional;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
@@ -15,6 +17,6 @@ final class AdapterDeTest {
 
 	static SpringAiAssistant autourDe(ChatModel modele) {
 		return new SpringAiAssistant(ChatClient.builder(modele), Validation.buildDefaultValidatorFactory().getValidator(),
-				MessageWindowChatMemory.builder().build());
+				MessageWindowChatMemory.builder().build(), new OutilsCommande(numero -> Optional.empty()));
 	}
 }

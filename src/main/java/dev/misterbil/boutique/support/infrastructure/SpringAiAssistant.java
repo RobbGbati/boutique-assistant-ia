@@ -1,11 +1,13 @@
 package dev.misterbil.boutique.support.infrastructure;
 
+import dev.misterbil.boutique.commande.infrastructure.OutilsCommande;
 import dev.misterbil.boutique.support.domaine.AnalyseTicket;
 import dev.misterbil.boutique.support.domaine.AssistantSupport;
 import dev.misterbil.boutique.support.domaine.Question;
 import dev.misterbil.boutique.support.domaine.Reponse;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.validation.Validator;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -51,13 +53,16 @@ class SpringAiAssistant implements AssistantSupport {
 	private final ChatClient chat;
 	private final Validator validator;
 	private final MessageChatMemoryAdvisor memoire;
+	private final OutilsCommande outilsCommande;
 
-	SpringAiAssistant(ChatClient.Builder builder, Validator validator, ChatMemory memoire) {
+	SpringAiAssistant(ChatClient.Builder builder, Validator validator,
+			ChatMemory memoire, OutilsCommande outilsCommande) {
 		this.chat = builder
 				.defaultSystem(FICHE_DE_POSTE) // post 2.2 : prompt système envoyé avec chaque appel
 				.build();
 		this.validator = validator;
 		this.memoire = MessageChatMemoryAdvisor.builder(memoire).build();
+		this.outilsCommande = outilsCommande;
 	}
 
 	/**
@@ -76,12 +81,16 @@ class SpringAiAssistant implements AssistantSupport {
 
 	/**
 	 * Post 2.3 : mémoire de conversation indexée par clientId. Le LLM est sans état : l'application stocke l'historique et le renvoie à chaque appel.
+	 * Post 2.4 : l'outil commande. Le client est passé dans le contexte de l'outil :
+	 * il vient de la session et n'est jamais envoyé au modèle.
 	 */
 	private ChatClient.ChatClientRequestSpec conversation(Question q) {
 		return chat.prompt()
 				.user(q.texte())
 				.advisors(memoire)
-				.advisors(a -> a.param(ChatMemory.CONVERSATION_ID, q.clientId()));
+				.advisors(a -> a.param(ChatMemory.CONVERSATION_ID, q.clientId()))
+				.tools(outilsCommande)
+				.toolContext(Map.of(OutilsCommande.CLIENT_ID, q.clientId()));
 	}
 
 	Reponse planB(Question q, Throwable e) {

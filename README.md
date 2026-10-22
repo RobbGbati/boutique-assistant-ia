@@ -45,6 +45,7 @@ Chaque classe indique le post qui l'a introduite ou modifiée : rechercher `Post
 | 2.1 Premier appel à un LLM, en local | `post-2-1` | `support/web/AssistantController` (`GET /assistant`) | `AssistantControllerTest` |
 | 2.2 Le prompt système | `post-2-2` | `SpringAiAssistant.FICHE_DE_POSTE` + `defaultSystem` | `FicheDePosteTest`, `PromptSystemeIT` |
 | 2.3 Une conversation par client | `post-2-3` | mémoire dans `SpringAiAssistant.conversation`, `Question.clientId`, `client/web/SessionHttp` | `MemoireParClientIT`, `AssistantControllerTest` |
+| 2.4 Tool calling sécurisé | `post-2-4` | `commande/infrastructure/OutilsCommande` (`@Tool` + `ToolContext`) | `OutilsCommandeTest`, `OutilCommandeIT` |
 
 ## Architecture
 
@@ -61,6 +62,18 @@ client/                  identité du client connecté
   domaine/               Client, Session
   web/                   session HTTP de démonstration (Spring Security en production)
 remise/domaine/          RemiseService : contrôle d'accès côté code
+commande/                commandes de la boutique
+  domaine/               Commande, port Commandes
+  infrastructure/        outil @Tool exposé au LLM, dépôt en mémoire
+```
+
+Trajet d'une question :
+
+```
+Navigateur ──> AssistantController ──> port AssistantSupport ──> SpringAiAssistant ──> Ollama
+                (clientId = session)                    prompt système · mémoire · outil
+                                                                     │
+                                  OutilsCommande <── le LLM demande l'outil, l'application l'exécute
 ```
 
 ## Lancer les tests
@@ -87,6 +100,8 @@ Conditions : Ollama en local, `llama3.2` (3,2 B paramètres, Q4_K_M), Apple M4 P
 | 1.4 | `spring.http.clients.read-timeout=1s` interrompt l'appel en ≈ 1 015 ms face à un serveur qui répond en 5 s. Portée : tous les clients HTTP de l'application. | `OllamaTimeoutTest` |
 | 1.5 | `MessageChatMemoryAdvisor` renvoie l'historique complet à chaque appel : tokens d'entrée 52 → 300 sur 6 échanges ; 52 → 219 avec `maxMessages(7)` (−27 % au 6e appel). | `MemoireConversationTest`, `MemoireConversationIT` |
 | 2.2 | Requête hors périmètre (« poème sur les chaussettes ») : exécutée sans prompt système, refusée avec `FICHE_DE_POSTE`. | `PromptSystemeIT` |
+| 2.4 | Tool calling : 2 appels au modèle par question (demande d'outil, puis réponse finale). Le `ToolContext` n'apparaît ni dans le prompt ni dans les options envoyés au modèle. | `OutilsCommandeTest` |
+| 2.4 | Contenu inventé malgré le résultat de l'outil : `EXPEDIEE` restitué avec un délai de livraison absent du résultat ; `INTROUVABLE` (commande d'un autre client) restitué comme « disponible pour la livraison ». | `OutilCommandeIT` |
 
 ---
 
