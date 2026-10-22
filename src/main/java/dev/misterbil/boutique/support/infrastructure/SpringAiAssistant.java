@@ -15,6 +15,7 @@ import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 
 /**
  * Post 1.1 : l'adapter. Seul endroit du code qui sait qu'un LLM existe.
@@ -80,6 +81,16 @@ class SpringAiAssistant implements AssistantSupport {
 	}
 
 	/**
+	 * Post 2.5 : même requête, en flux. Le temps total ne change pas ;
+	 * le client affiche le texte dès le premier fragment.
+	 */
+	@Override
+	@CircuitBreaker(name = "assistant", fallbackMethod = "planBEnDirect")
+	public Flux<String> repondreEnDirect(Question q) {
+		return conversation(q).stream().content();
+	}
+
+	/**
 	 * Post 2.3 : mémoire de conversation indexée par clientId. Le LLM est sans état : l'application stocke l'historique et le renvoie à chaque appel.
 	 * Post 2.4 : l'outil commande. Le client est passé dans le contexte de l'outil :
 	 * il vient de la session et n'est jamais envoyé au modèle.
@@ -96,6 +107,16 @@ class SpringAiAssistant implements AssistantSupport {
 	Reponse planB(Question q, Throwable e) {
 		log.warn("Plan B déclenché : {}", e.toString());
 		return Reponse.indisponible();
+	}
+
+	/**
+	 * Post 2.5 : même plan B pour le flux. Le circuit est partagé avec repondre() :
+	 * une panne d'Ollama ouvre le circuit pour les deux endpoints.
+	 * Limite : si l'erreur survient au milieu du flux, le client a déjà reçu les premiers fragments.
+	 */
+	Flux<String> planBEnDirect(Question q, Throwable e) {
+		log.warn("Plan B (flux) déclenché : {}", e.toString());
+		return Flux.just(Reponse.indisponible().texte());
 	}
 
 	/**

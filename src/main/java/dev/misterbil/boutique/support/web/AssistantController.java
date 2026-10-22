@@ -3,9 +3,11 @@ package dev.misterbil.boutique.support.web;
 import dev.misterbil.boutique.client.domaine.Session;
 import dev.misterbil.boutique.support.domaine.AssistantSupport;
 import dev.misterbil.boutique.support.domaine.Question;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 
 /**
  * Post 2.1 : la porte d'entrée HTTP. Le contrôleur parle au port, pas au fournisseur.
@@ -24,6 +26,12 @@ class AssistantController {
 	@GetMapping("/assistant")
 	String repondre(@RequestParam String question) {
 		return assistant.repondre(question(question)).texte();
+	}
+
+	/** Post 2.5 : envoi en Server-Sent Events, un événement par fragment. */
+	@GetMapping(value = "/assistant/direct", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	Flux<String> repondreEnDirect(@RequestParam String question) {
+		return assistant.repondreEnDirect(question(question));
 	}
 
 	/** Post 2.3 : l'identifiant du client vient de la session, jamais de la requête. */

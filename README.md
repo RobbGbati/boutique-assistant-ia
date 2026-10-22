@@ -46,6 +46,7 @@ Chaque classe indique le post qui l'a introduite ou modifiée : rechercher `Post
 | 2.2 Le prompt système | `post-2-2` | `SpringAiAssistant.FICHE_DE_POSTE` + `defaultSystem` | `FicheDePosteTest`, `PromptSystemeIT` |
 | 2.3 Une conversation par client | `post-2-3` | mémoire dans `SpringAiAssistant.conversation`, `Question.clientId`, `client/web/SessionHttp` | `MemoireParClientIT`, `AssistantControllerTest` |
 | 2.4 Tool calling sécurisé | `post-2-4` | `commande/infrastructure/OutilsCommande` (`@Tool` + `ToolContext`) | `OutilsCommandeTest`, `OutilCommandeIT` |
+| 2.5 Streaming | `post-2-5` | `AssistantSupport.repondreEnDirect`, `GET /assistant/direct` (SSE) | `AssistantControllerTest`, `StreamingIT`, `StreamingPlanBTest` |
 
 ## Architecture
 
@@ -102,6 +103,8 @@ Conditions : Ollama en local, `llama3.2` (3,2 B paramètres, Q4_K_M), Apple M4 P
 | 2.2 | Requête hors périmètre (« poème sur les chaussettes ») : exécutée sans prompt système, refusée avec `FICHE_DE_POSTE`. | `PromptSystemeIT` |
 | 2.4 | Tool calling : 2 appels au modèle par question (demande d'outil, puis réponse finale). Le `ToolContext` n'apparaît ni dans le prompt ni dans les options envoyés au modèle. | `OutilsCommandeTest` |
 | 2.4 | Contenu inventé malgré le résultat de l'outil : `EXPEDIEE` restitué avec un délai de livraison absent du résultat ; `INTROUVABLE` (commande d'un autre client) restitué comme « disponible pour la livraison ». | `OutilCommandeIT` |
+| 2.5 | Réponse de 150 mots (254 fragments) : durée totale identique en `call()` et `stream()` (≈ 2,7 s), premier fragment en 20 à 80 ms. | `StreamingIT` |
+| 2.5 | `@CircuitBreaker` sur `repondreEnDirect()` (avec `resilience4j-reactor`) : le flux partage le circuit `assistant` avec `repondre()`. Ollama en 503 : un seul fragment, le message du plan B ; circuit ouvert : aucune requête vers Ollama. | `StreamingPlanBTest` |
 
 ---
 
