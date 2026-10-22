@@ -8,6 +8,7 @@ import jakarta.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.stereotype.Component;
 
 /**
@@ -17,6 +18,19 @@ import org.springframework.stereotype.Component;
 class SpringAiAssistant implements AssistantSupport {
 
 	private static final Logger log = LoggerFactory.getLogger(SpringAiAssistant.class);
+
+	// Post 1.3 : consigne v2. La v1 (catégories sans définition, résumé libre) donnait 5/10 à l'évaluation.
+	private static final String CONSIGNE_ANALYSE = """
+			Analyse ce ticket du support d'une boutique en ligne.
+			Catégorie, une seule :
+			- LIVRAISON : l'acheminement du colis (retard, suivi, perte, contenu manquant, lieu de livraison).
+			- PAIEMENT : l'argent (débit, remboursement, moyen de paiement, prix ou réduction appliqués).
+			- RETOUR : renvoyer ou échanger un article, et la procédure de retour.
+			- AUTRE : tout le reste, par exemple le compte client ou une question générale.
+			Urgence : de 1 (faible) à 5 (critique).
+			Résumé : une phrase de 200 caractères maximum qui reformule ce que dit le client.
+			N'ajoute aucun fait absent du ticket. Ne donne ni conseil ni consigne.
+			""";
 
 	private final ChatClient chat;
 	private final Validator validator;
@@ -35,15 +49,20 @@ class SpringAiAssistant implements AssistantSupport {
 
 	/**
 	 * Post 1.2 : mapping (la forme), puis Bean Validation (le sens), puis valeur par défaut.
+	 * Post 1.3 : sortie structurée native d'Ollama. L'évaluation (EvaluationIT) a montré qu'en mode
+	 * par défaut llama3.2 tronquait le JSON 7 fois sur 10 ; en natif, 10 analyses valides sur 10.
+	 * Bean Validation reste indispensable : le schéma ne vérifie pas les règles métier.
 	 */
 	@Override
 	public AnalyseTicket analyser(String ticket) {
 		AnalyseTicket analyse;
 		try {
 			analyse = chat.prompt()
+					.system(CONSIGNE_ANALYSE)
 					.user(ticket)
+					.options(ChatOptions.builder().temperature(0.0)) // classer, pas créer : on limite la variation
 					.call()
-					.entity(AnalyseTicket.class);
+					.entity(AnalyseTicket.class, spec -> spec.useProviderStructuredOutput());
 		}
 		catch (RuntimeException e) {
 			log.warn("Mapping impossible : {}", e.toString());
