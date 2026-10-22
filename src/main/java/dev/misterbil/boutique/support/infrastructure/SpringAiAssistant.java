@@ -9,6 +9,8 @@ import jakarta.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.stereotype.Component;
 
@@ -48,12 +50,14 @@ class SpringAiAssistant implements AssistantSupport {
 
 	private final ChatClient chat;
 	private final Validator validator;
+	private final MessageChatMemoryAdvisor memoire;
 
-	SpringAiAssistant(ChatClient.Builder builder, Validator validator) {
+	SpringAiAssistant(ChatClient.Builder builder, Validator validator, ChatMemory memoire) {
 		this.chat = builder
 				.defaultSystem(FICHE_DE_POSTE) // post 2.2 : prompt système envoyé avec chaque appel
 				.build();
 		this.validator = validator;
+		this.memoire = MessageChatMemoryAdvisor.builder(memoire).build();
 	}
 
 	/**
@@ -63,13 +67,21 @@ class SpringAiAssistant implements AssistantSupport {
 	@Override
 	@CircuitBreaker(name = "assistant", fallbackMethod = "planB")
 	public Reponse repondre(Question q) {
-		var reponse = chat.prompt()
-				.user(q.texte())
-				.call().chatResponse();
+		var reponse = conversation(q).call().chatResponse();
 		var usage = reponse.getMetadata().getUsage();
 		log.info("Tokens : entrée={} sortie={} total={}",
 				usage.getPromptTokens(), usage.getCompletionTokens(), usage.getTotalTokens());
 		return new Reponse(reponse.getResult().getOutput().getText());
+	}
+
+	/**
+	 * Post 2.3 : mémoire de conversation indexée par clientId. Le LLM est sans état : l'application stocke l'historique et le renvoie à chaque appel.
+	 */
+	private ChatClient.ChatClientRequestSpec conversation(Question q) {
+		return chat.prompt()
+				.user(q.texte())
+				.advisors(memoire)
+				.advisors(a -> a.param(ChatMemory.CONVERSATION_ID, q.clientId()));
 	}
 
 	Reponse planB(Question q, Throwable e) {

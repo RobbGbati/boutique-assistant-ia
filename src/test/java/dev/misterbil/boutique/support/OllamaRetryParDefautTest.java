@@ -1,5 +1,6 @@
 package dev.misterbil.boutique.support;
 
+import dev.misterbil.boutique.support.domaine.Question;
 import com.sun.net.httpserver.HttpServer;
 import dev.misterbil.boutique.support.domaine.SupportService;
 import org.junit.jupiter.api.AfterAll;
@@ -58,7 +59,7 @@ class OllamaRetryParDefautTest {
 
 	@Test
 	void compter_les_appels_par_defaut() {
-		support.traiter("Où est ma commande 42 ?");
+		support.traiter(new Question("client-test", "Où est ma commande 42 ?"));
 		System.out.println(">>> Appels reçus avec le retry par défaut : " + requetes.get());
 	}
 }

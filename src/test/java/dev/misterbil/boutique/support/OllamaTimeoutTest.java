@@ -1,5 +1,6 @@
 package dev.misterbil.boutique.support;
 
+import dev.misterbil.boutique.support.domaine.Question;
 import com.sun.net.httpserver.HttpServer;
 import dev.misterbil.boutique.support.domaine.StatutTraitement;
 import dev.misterbil.boutique.support.domaine.SupportService;
@@ -63,7 +64,7 @@ class OllamaTimeoutTest {
 	@Test
 	void un_ollama_trop_lent_est_coupe() {
 		long debut = System.nanoTime();
-		var res = support.traiter("Où est ma commande 42 ?");
+		var res = support.traiter(new Question("client-test", "Où est ma commande 42 ?"));
 		long ms = (System.nanoTime() - debut) / 1_000_000;
 
 		System.out.println(">>> Durée avec read-timeout=1s face à un serveur de 5 s : " + ms + " ms, statut " + res.statut());

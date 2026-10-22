@@ -1,5 +1,6 @@
 package dev.misterbil.boutique.support;
 
+import dev.misterbil.boutique.support.domaine.Question;
 import dev.misterbil.boutique.support.domaine.AnalyseTicket;
 import dev.misterbil.boutique.support.domaine.AssistantSupport;
 import dev.misterbil.boutique.support.domaine.Categorie;
@@ -28,7 +29,7 @@ class SupportServiceTest {
 	void traite_le_ticket_quand_l_assistant_repond() {
 		when(assistant.repondre(any())).thenReturn(new Reponse("Commande 42 : expédiée"));
 
-		var res = support.traiter("Où est ma commande 42 ?");
+		var res = support.traiter(new Question("client-test", "Où est ma commande 42 ?"));
 
 		assertThat(res.statut()).isEqualTo(StatutTraitement.TRAITE);
 	}
@@ -37,7 +38,7 @@ class SupportServiceTest {
 	void passe_a_un_conseiller_quand_l_assistant_est_indisponible() {
 		when(assistant.repondre(any())).thenReturn(Reponse.indisponible());
 
-		var res = support.traiter("Où est ma commande 42 ?");
+		var res = support.traiter(new Question("client-test", "Où est ma commande 42 ?"));
 
 		assertThat(res.statut()).isEqualTo(StatutTraitement.EN_ATTENTE_CONSEILLER);
 	}

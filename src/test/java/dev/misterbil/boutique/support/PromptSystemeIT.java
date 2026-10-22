@@ -29,7 +29,7 @@ class PromptSystemeIT {
 	@Test
 	void sans_fiche_il_obeit_avec_fiche_il_reste_dans_son_role() {
 		var sansFiche = builder.build().prompt().user(HORS_SUJET).call().content();
-		var avecFiche = assistant.repondre(new Question(HORS_SUJET)).texte();
+		var avecFiche = assistant.repondre(new Question("client-test", HORS_SUJET)).texte();
 
 		System.out.println(">>> Sans fiche : " + sansFiche);
 		System.out.println(">>> Avec fiche : " + avecFiche);

@@ -1,5 +1,6 @@
 package dev.misterbil.boutique.support;
 
+import dev.misterbil.boutique.support.domaine.Question;
 import com.sun.net.httpserver.HttpServer;
 import dev.misterbil.boutique.support.domaine.StatutTraitement;
 import dev.misterbil.boutique.support.domaine.SupportService;
@@ -74,7 +75,7 @@ class RetryEtPlanBTest {
 
 	@Test
 	void un_appel_en_echec_declenche_le_plan_b_et_on_compte_les_tentatives() {
-		var res = support.traiter("Où est ma commande 42 ?");
+		var res = support.traiter(new Question("client-test", "Où est ma commande 42 ?"));
 
 		assertThat(res.statut()).isEqualTo(StatutTraitement.EN_ATTENTE_CONSEILLER);
 		System.out.println(">>> Requêtes reçues pour 1 appel avec spring.ai.retry.max-attempts=2 : " + requetes.get());
@@ -83,12 +84,12 @@ class RetryEtPlanBTest {
 	@Test
 	void le_circuit_ouvert_n_appelle_plus_le_llm() {
 		for (int i = 0; i < 3; i++) {
-			support.traiter("Question " + i);
+			support.traiter(new Question("client-test", "Question " + i));
 		}
 		int avant = requetes.get();
 		System.out.println(">>> État du circuit après 3 échecs : " + circuits.circuitBreaker("assistant").getState());
 
-		var res = support.traiter("Encore une question");
+		var res = support.traiter(new Question("client-test", "Encore une question"));
 
 		assertThat(res.statut()).isEqualTo(StatutTraitement.EN_ATTENTE_CONSEILLER);
 		assertThat(requetes.get()).as("aucune requête quand le circuit est ouvert").isEqualTo(avant);

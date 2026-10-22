@@ -14,10 +14,11 @@ ollama pull llama3.2          # modèle de 2 Go, exécuté en local, sans clé d
 ./mvnw spring-boot:run
 ```
 
-Appel :
+Appel avec un cookie de session :
 
 ```bash
-curl -G localhost:8080/assistant --data-urlencode "question=Où est ma commande ?"
+curl -c c.txt -X POST "localhost:8080/demo/connexion?client=paul"
+curl -b c.txt -G localhost:8080/assistant --data-urlencode "question=Où en est ma commande 42 ?"
 ```
 
 ## Naviguer post par post
@@ -43,6 +44,7 @@ Chaque classe indique le post qui l'a introduite ou modifiée : rechercher `Post
 | 1.6 La prompt injection expliquée à un dev backend | `post-1-6` | `remise/domaine/RemiseService`, `client/domaine/Session` | `RemiseServiceTest` |
 | 2.1 Premier appel à un LLM, en local | `post-2-1` | `support/web/AssistantController` (`GET /assistant`) | `AssistantControllerTest` |
 | 2.2 Le prompt système | `post-2-2` | `SpringAiAssistant.FICHE_DE_POSTE` + `defaultSystem` | `FicheDePosteTest`, `PromptSystemeIT` |
+| 2.3 Une conversation par client | `post-2-3` | mémoire dans `SpringAiAssistant.conversation`, `Question.clientId`, `client/web/SessionHttp` | `MemoireParClientIT`, `AssistantControllerTest` |
 
 ## Architecture
 
@@ -57,6 +59,7 @@ support/                 assistant de support client
   web/                   AssistantController : /assistant, /assistant/direct
 client/                  identité du client connecté
   domaine/               Client, Session
+  web/                   session HTTP de démonstration (Spring Security en production)
 remise/domaine/          RemiseService : contrôle d'accès côté code
 ```
 

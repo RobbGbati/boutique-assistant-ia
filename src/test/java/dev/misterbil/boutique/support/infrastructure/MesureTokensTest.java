@@ -30,7 +30,7 @@ class MesureTokensTest {
 				.metadata(ChatResponseMetadata.builder().usage(new DefaultUsage(31, 64)).build())
 				.build());
 
-		var reponse = assistant.repondre(new Question("Où est ma commande ?"));
+		var reponse = assistant.repondre(new Question("client-test", "Où est ma commande ?"));
 
 		assertThat(reponse).isEqualTo(new Reponse("Votre colis arrive demain."));
 		assertThat(sortie).contains("Tokens : entrée=31 sortie=64 total=95");

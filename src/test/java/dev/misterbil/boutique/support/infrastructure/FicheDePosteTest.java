@@ -35,7 +35,7 @@ class FicheDePosteTest {
 
 	@Test
 	void la_fiche_de_poste_part_avec_chaque_question() {
-		AdapterDeTest.autourDe(modele).repondre(new Question("Où est ma commande 42 ?"));
+		AdapterDeTest.autourDe(modele).repondre(new Question("client-test", "Où est ma commande 42 ?"));
 
 		assertThat(messagesSysteme()).singleElement()
 				.extracting(Message::getText).isEqualTo(SpringAiAssistant.FICHE_DE_POSTE);

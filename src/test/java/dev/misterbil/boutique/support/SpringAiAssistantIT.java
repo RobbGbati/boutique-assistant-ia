@@ -26,7 +26,7 @@ class SpringAiAssistantIT {
 
 	@Test
 	void l_adapter_obtient_une_reponse() {
-		var reponse = assistant.repondre(new Question("Réponds en une phrase : quel est le délai de livraison standard en France ?"));
+		var reponse = assistant.repondre(new Question("client-test", "Réponds en une phrase : quel est le délai de livraison standard en France ?"));
 
 		assertThat(reponse.disponible()).isTrue();
 		assertThat(reponse.texte()).isNotBlank();

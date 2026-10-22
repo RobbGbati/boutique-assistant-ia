@@ -19,8 +19,8 @@ public class SupportService {
 	/**
 	 * Post 1.4 : si l'assistant ne répond pas, le ticket attend un conseiller.
 	 */
-	public ResultatTraitement traiter(String messageClient) {
-		Reponse reponse = assistant.repondre(new Question(messageClient));
+	public ResultatTraitement traiter(Question question) {
+		Reponse reponse = assistant.repondre(question);
 		if (!reponse.disponible()) {
 			return new ResultatTraitement(StatutTraitement.EN_ATTENTE_CONSEILLER, reponse);
 		}
