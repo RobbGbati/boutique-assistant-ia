@@ -6,4 +6,7 @@ package dev.misterbil.boutique.support.domaine;
 public interface AssistantSupport {
 
 	Reponse repondre(Question question);
+
+	/** Post 1.2 : la réponse du LLM, mappée dans un record et validée. */
+	AnalyseTicket analyser(String ticket);
 }

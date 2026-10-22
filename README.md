@@ -30,6 +30,7 @@ Chaque classe indique le post qui l'a introduite ou modifiée : rechercher `Post
 | Post | Tag | Code | Tests |
 |---|---|---|---|
 | 1.1 Le LLM n'est pas ton domaine | `post-1-1` | `support/domaine/AssistantSupport` (port), `support/infrastructure/SpringAiAssistant` (adapter) | `SupportServiceTest` |
+| 1.2 Une réponse de LLM est une donnée non fiable | `post-1-2` | `AnalyseTicket` (record + Bean Validation), `SpringAiAssistant.analyser` | `AnalyseTicketValidationTest`, `AnalyseTicketRepliTest`, `SortieStructureeSpringAiTest`, `ModesSortieStructureeIT` |
 
 ## Architecture
 
@@ -49,7 +50,17 @@ support/                 assistant de support client
 |---|---|---|
 | `./mvnw test` | Surefire | Classes `*Test` : tests unitaires sur un `ChatModel` de test. Aucun appel à un LLM. |
 
+`ModesSortieStructureeIT` (exploration) s'exécute à la main depuis l'IDE, contre Ollama en local.
+
 Plusieurs JDK installés : `JAVA_HOME=$(/usr/libexec/java_home -v 25) ./mvnw test`.
+
+## Constats mesurés
+
+Conditions : Ollama en local, `llama3.2` (3,2 B paramètres, Q4_K_M), Apple M4 Pro, Spring AI 2.0.1, octobre 2026.
+
+| Post | Constat | Test |
+|---|---|---|
+| 1.2 | `validateSchema()` valide la structure JSON, pas les contraintes Bean Validation : une `urgence` hors `[1, 5]` passe le schéma, `@Min`/`@Max` la rejettent. | `SortieStructureeSpringAiTest`, `ModesSortieStructureeIT` |
 
 ---
 
