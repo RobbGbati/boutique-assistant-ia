@@ -33,6 +33,7 @@ Chaque classe indique le post qui l'a introduite ou modifiée : rechercher `Post
 | 1.2 Une réponse de LLM est une donnée non fiable | `post-1-2` | `AnalyseTicket` (record + Bean Validation), `SpringAiAssistant.analyser` | `AnalyseTicketValidationTest`, `AnalyseTicketRepliTest`, `SortieStructureeSpringAiTest`, `ModesSortieStructureeIT` |
 | 1.3 Tester du code qui ne répond jamais pareil | `post-1-3` | `SupportService.orienter`, consigne v2 dans `SpringAiAssistant` | `SupportServiceTest` (niveau 1), `SpringAiAssistantIT` (niveau 2), `EvaluationIT` (niveau 3) |
 | 1.4 Quand le fournisseur d'IA tombe | `post-1-4` | `@CircuitBreaker` + `planB` dans `SpringAiAssistant`, `application.yml` | `RetryEtPlanBTest`, `OllamaRetryParDefautTest`, `OllamaTimeoutTest` |
+| 1.5 Les tokens, c'est ta facture | `post-1-5` | journalisation des tokens dans `SpringAiAssistant.repondre` | `MesureTokensTest`, `MemoireConversationTest`, `MemoireConversationIT` |
 
 ## Architecture
 
@@ -68,6 +69,7 @@ Conditions : Ollama en local, `llama3.2` (3,2 B paramètres, Q4_K_M), Apple M4 P
 | 1.3 | Évaluation sur 10 tickets de référence (juge `bespoke-minicheck`) : 2/10 en sortie structurée par défaut, 5/10 en sortie native (`useProviderStructuredOutput()`), 9/10 avec la consigne v2 et `temperature = 0`. | `EvaluationIT` |
 | 1.4 | `spring.ai.retry.max-attempts` compte les relances : appels = 1 + `max-attempts`. Valeurs par défaut du starter Ollama : 10 relances sur HTTP 503 (11 appels), aucune sur HTTP 400. | `RetryEtPlanBTest`, `OllamaRetryParDefautTest` |
 | 1.4 | `spring.http.clients.read-timeout=1s` interrompt l'appel en ≈ 1 015 ms face à un serveur qui répond en 5 s. Portée : tous les clients HTTP de l'application. | `OllamaTimeoutTest` |
+| 1.5 | `MessageChatMemoryAdvisor` renvoie l'historique complet à chaque appel : tokens d'entrée 52 → 300 sur 6 échanges ; 52 → 219 avec `maxMessages(7)` (−27 % au 6e appel). | `MemoireConversationTest`, `MemoireConversationIT` |
 
 ---
 

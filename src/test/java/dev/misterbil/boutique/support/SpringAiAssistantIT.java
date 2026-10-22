@@ -28,6 +28,7 @@ class SpringAiAssistantIT {
 	void l_adapter_obtient_une_reponse() {
 		var reponse = assistant.repondre(new Question("Réponds en une phrase : quel est le délai de livraison standard en France ?"));
 
+		assertThat(reponse.disponible()).isTrue();
 		assertThat(reponse.texte()).isNotBlank();
 	}
 
@@ -41,4 +42,17 @@ class SpringAiAssistantIT {
 		assertThat(analyse.urgence()).isBetween(1, 5);
 	}
 
+	/** Post 1.5 : les tokens consommés sont disponibles dans ChatResponse.getMetadata().getUsage(). */
+	@Test
+	void les_tokens_sont_mesurables() {
+		var usage = builder.build().prompt()
+				.user("Où est ma commande ?")
+				.call()
+				.chatResponse()
+				.getMetadata().getUsage();
+
+		System.out.println(">>> Tokens : entrée=" + usage.getPromptTokens()
+				+ " sortie=" + usage.getCompletionTokens() + " total=" + usage.getTotalTokens());
+		assertThat(usage.getTotalTokens()).isPositive();
+	}
 }

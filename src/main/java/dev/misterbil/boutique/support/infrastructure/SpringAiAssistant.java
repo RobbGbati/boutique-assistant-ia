@@ -43,13 +43,18 @@ class SpringAiAssistant implements AssistantSupport {
 
 	/**
 	 * Post 1.4 : le circuit breaker et le plan B posés sur l'adapter.
+	 * Post 1.5 : chaque appel journalise ses tokens d'entrée et de sortie (base de facturation chez un fournisseur cloud).
 	 */
 	@Override
 	@CircuitBreaker(name = "assistant", fallbackMethod = "planB")
 	public Reponse repondre(Question q) {
-		return new Reponse(chat.prompt()
+		var reponse = chat.prompt()
 				.user(q.texte())
-				.call().content());
+				.call().chatResponse();
+		var usage = reponse.getMetadata().getUsage();
+		log.info("Tokens : entrée={} sortie={} total={}",
+				usage.getPromptTokens(), usage.getCompletionTokens(), usage.getTotalTokens());
+		return new Reponse(reponse.getResult().getOutput().getText());
 	}
 
 	Reponse planB(Question q, Throwable e) {
