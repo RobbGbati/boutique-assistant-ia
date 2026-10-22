@@ -42,6 +42,7 @@ Chaque classe indique le post qui l'a introduite ou modifiée : rechercher `Post
 | 1.5 Les tokens, c'est ta facture | `post-1-5` | journalisation des tokens dans `SpringAiAssistant.repondre` | `MesureTokensTest`, `MemoireConversationTest`, `MemoireConversationIT` |
 | 1.6 La prompt injection expliquée à un dev backend | `post-1-6` | `remise/domaine/RemiseService`, `client/domaine/Session` | `RemiseServiceTest` |
 | 2.1 Premier appel à un LLM, en local | `post-2-1` | `support/web/AssistantController` (`GET /assistant`) | `AssistantControllerTest` |
+| 2.2 Le prompt système | `post-2-2` | `SpringAiAssistant.FICHE_DE_POSTE` + `defaultSystem` | `FicheDePosteTest`, `PromptSystemeIT` |
 
 ## Architecture
 
@@ -82,6 +83,7 @@ Conditions : Ollama en local, `llama3.2` (3,2 B paramètres, Q4_K_M), Apple M4 P
 | 1.4 | `spring.ai.retry.max-attempts` compte les relances : appels = 1 + `max-attempts`. Valeurs par défaut du starter Ollama : 10 relances sur HTTP 503 (11 appels), aucune sur HTTP 400. | `RetryEtPlanBTest`, `OllamaRetryParDefautTest` |
 | 1.4 | `spring.http.clients.read-timeout=1s` interrompt l'appel en ≈ 1 015 ms face à un serveur qui répond en 5 s. Portée : tous les clients HTTP de l'application. | `OllamaTimeoutTest` |
 | 1.5 | `MessageChatMemoryAdvisor` renvoie l'historique complet à chaque appel : tokens d'entrée 52 → 300 sur 6 échanges ; 52 → 219 avec `maxMessages(7)` (−27 % au 6e appel). | `MemoireConversationTest`, `MemoireConversationIT` |
+| 2.2 | Requête hors périmètre (« poème sur les chaussettes ») : exécutée sans prompt système, refusée avec `FICHE_DE_POSTE`. | `PromptSystemeIT` |
 
 ---
 
