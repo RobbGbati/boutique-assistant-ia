@@ -14,12 +14,7 @@ ollama pull llama3.2          # modèle de 2 Go, exécuté en local, sans clé d
 ./mvnw spring-boot:run
 ```
 
-Appel avec un cookie de session :
-
-```bash
-curl -c c.txt -X POST "localhost:8080/demo/connexion?client=paul"
-curl -b c.txt -G localhost:8080/assistant --data-urlencode "question=Où en est ma commande 42 ?"
-```
+Ouvrir http://localhost:8080, choisir un client (Paul ou Léa), se connecter, poser une question.
 
 ## Naviguer post par post
 
@@ -49,6 +44,7 @@ Chaque classe indique le post qui l'a introduite ou modifiée : rechercher `Post
 | 2.5 Streaming | `post-2-5` | `AssistantSupport.repondreEnDirect`, `GET /assistant/direct` (SSE) | `AssistantControllerTest`, `StreamingIT`, `StreamingPlanBTest` |
 | 2.6 Serveur MCP | `post-2-6` | `stock/infrastructure/OutilsStockMcp` (`@McpTool`), `application.yml` | `ServeurMcpTest` |
 | 2.7 Métriques | `post-2-7` | Actuator + `management.endpoints` dans `application.yml` | `ObservabiliteIT` |
+| 2.8 Démo complète | `post-2-8` | `src/main/resources/static/index.html` | tous |
 
 ## Architecture
 

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="fr">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Assistant Boutique Bil</title>
+	<!-- Post 2.8 : la page de démo. Connexion simulée, puis réponses en streaming (post 2.5). -->
+	<style>
+		:root { --papier: #f6f1e7; --encre: #1d2433; --or: #c9962b; --cyan: #2a8a9e; --gris: #8a8f99; }
+		* { box-sizing: border-box; }
+		body { margin: 0; background: var(--papier); color: var(--encre); font: 16px/1.5 system-ui, sans-serif; }
+		main { max-width: 640px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; min-height: 100vh; }
+		h1 { margin: 0; font-size: 22px; }
+		h1 span { color: var(--or); }
+		.connexion, form { display: flex; gap: 8px; }
+		select, input, button { font: inherit; padding: 10px 12px; border-radius: 10px; border: 1px solid #d8d0c0; background: #fff; color: inherit; }
+		input { flex: 1; min-width: 0; }
+		button { background: var(--encre); color: #fff; border: 0; cursor: pointer; }
+		button:disabled { opacity: .5; cursor: default; }
+		#fil { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+		.bulle { max-width: 85%; padding: 10px 14px; border-radius: 14px; box-shadow: 0 2px 6px rgba(0,0,0,.08); white-space: pre-wrap; }
+		.client { align-self: flex-end; background: var(--encre); color: #fff; }
+		.assistant { align-self: flex-start; background: #fff; border-left: 4px solid var(--or); }
+		.etat { color: var(--gris); font-size: 14px; }
+	</style>
+</head>
+<body>
+<main>
+	<h1>Assistant <span>Boutique Bil</span></h1>
+	<div class="connexion">
+		<select id="client" aria-label="Client connecté">
+			<option value="paul">Paul (commande 42)</option>
+			<option value="lea">Léa (commande 7)</option>
+		</select>
+		<button id="connecter" type="button">Se connecter</button>
+	</div>
+	<p id="etat" class="etat">Connecte-toi pour parler à l'assistant.</p>
+	<div id="fil" aria-live="polite"></div>
+	<form id="formulaire">
+		<input id="question" placeholder="Où en est ma commande 42 ?" autocomplete="off" disabled>
+		<button id="envoyer" disabled>Envoyer</button>
+	</form>
+</main>
+<script>
+	const fil = document.getElementById('fil');
+	const question = document.getElementById('question');
+	const envoyer = document.getElementById('envoyer');
+
+	function bulle(classe, texte) {
+		const div = document.createElement('div');
+		div.className = 'bulle ' + classe;
+		div.textContent = texte;
+		fil.appendChild(div);
+		div.scrollIntoView({ block: 'end' });
+		return div;
+	}
+
+	document.getElementById('connecter').addEventListener('click', async () => {
+		const client = document.getElementById('client').value;
+		const reponse = await fetch('/demo/connexion?client=' + encodeURIComponent(client), { method: 'POST' });
+		document.getElementById('etat').textContent = await reponse.text();
+		fil.replaceChildren();
+		question.disabled = envoyer.disabled = false;
+		question.focus();
+	});
+
+	// Lecture du flux SSE à la main : EventSource retire l'espace en tête de chaque morceau, et les mots se colleraient.
+	document.getElementById('formulaire').addEventListener('submit', async (e) => {
+		e.preventDefault();
+		const texte = question.value.trim();
+		if (!texte) return;
+		question.value = '';
+		envoyer.disabled = true;
+		bulle('client', texte);
+		const reponse = bulle('assistant', '');
+		const flux = await fetch('/assistant/direct?question=' + encodeURIComponent(texte));
+		const lecteur = flux.body.pipeThrough(new TextDecoderStream()).getReader();
+		let tampon = '';
+		for (;;) {
+			const { value, done } = await lecteur.read();
+			if (done) break;
+			tampon += value;
+			const evenements = tampon.split('\n\n');
+			tampon = evenements.pop();
+			for (const evenement of evenements) {
+				reponse.textContent += evenement.split('\n')
+					.filter(ligne => ligne.startsWith('data:'))
+					.map(ligne => ligne.slice(5))
+					.join('\n');
+			}
+			reponse.scrollIntoView({ block: 'end' });
+		}
+		envoyer.disabled = false;
+		question.focus();
+	});
+</script>
+</body>
+</html>
