@@ -25,3 +25,11 @@ resilience4j:
         slow-call-rate-threshold: 50
         wait-duration-in-open-state: 30s
         permitted-number-of-calls-in-half-open-state: 2
+
+# Post 2.7 : exposer les métriques (gen_ai.client.operation, gen_ai.client.token.usage, spring.ai.tool...)
+# Le texte des prompts et des réponses n'est pas exporté : log-prompt et log-completion restent à false.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics

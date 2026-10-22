@@ -40,6 +40,11 @@
 			<groupId>org.springframework.ai</groupId>
 			<artifactId>spring-ai-starter-mcp-server-webmvc</artifactId>
 		</dependency>
+		<!-- Post 2.7 : métriques et traces -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
 		<!-- Post 1.4 : circuit breaker autour de l'adapter IA -->
 		<dependency>
 			<groupId>io.github.resilience4j</groupId>
