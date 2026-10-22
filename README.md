@@ -14,6 +14,12 @@ ollama pull llama3.2          # modèle de 2 Go, exécuté en local, sans clé d
 ./mvnw spring-boot:run
 ```
 
+Appel :
+
+```bash
+curl -G localhost:8080/assistant --data-urlencode "question=Où est ma commande ?"
+```
+
 ## Naviguer post par post
 
 Chaque post a son tag. Le code d'un tag est exactement celui du post.
@@ -35,6 +41,7 @@ Chaque classe indique le post qui l'a introduite ou modifiée : rechercher `Post
 | 1.4 Quand le fournisseur d'IA tombe | `post-1-4` | `@CircuitBreaker` + `planB` dans `SpringAiAssistant`, `application.yml` | `RetryEtPlanBTest`, `OllamaRetryParDefautTest`, `OllamaTimeoutTest` |
 | 1.5 Les tokens, c'est ta facture | `post-1-5` | journalisation des tokens dans `SpringAiAssistant.repondre` | `MesureTokensTest`, `MemoireConversationTest`, `MemoireConversationIT` |
 | 1.6 La prompt injection expliquée à un dev backend | `post-1-6` | `remise/domaine/RemiseService`, `client/domaine/Session` | `RemiseServiceTest` |
+| 2.1 Premier appel à un LLM, en local | `post-2-1` | `support/web/AssistantController` (`GET /assistant`) | `AssistantControllerTest` |
 
 ## Architecture
 
@@ -46,6 +53,7 @@ BoutiqueAssistantIaApplication.java
 support/                 assistant de support client
   domaine/               port AssistantSupport, SupportService, records métier
   infrastructure/        adapter Spring AI (seule classe qui appelle le LLM)
+  web/                   AssistantController : /assistant, /assistant/direct
 client/                  identité du client connecté
   domaine/               Client, Session
 remise/domaine/          RemiseService : contrôle d'accès côté code
