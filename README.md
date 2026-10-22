@@ -3,7 +3,7 @@
 Projet fil rouge de la série IA de **dev_mister_bil** : une boutique en ligne en Spring Boot,
 à laquelle on ajoute un assistant de support basé sur un LLM. Chaque post de la série correspond à un tag git.
 
-Stack : Java 25, Spring Boot 4.1.1, Spring AI 2.0.1, Ollama en local (modèle `llama3.2`).
+Stack : Java 25, Spring Boot 4.1.1, Spring AI 2.0.1, Resilience4j 2.4.0, Ollama en local (modèle `llama3.2`).
 
 ## Démarrer
 
@@ -32,6 +32,7 @@ Chaque classe indique le post qui l'a introduite ou modifiée : rechercher `Post
 | 1.1 Le LLM n'est pas ton domaine | `post-1-1` | `support/domaine/AssistantSupport` (port), `support/infrastructure/SpringAiAssistant` (adapter) | `SupportServiceTest` |
 | 1.2 Une réponse de LLM est une donnée non fiable | `post-1-2` | `AnalyseTicket` (record + Bean Validation), `SpringAiAssistant.analyser` | `AnalyseTicketValidationTest`, `AnalyseTicketRepliTest`, `SortieStructureeSpringAiTest`, `ModesSortieStructureeIT` |
 | 1.3 Tester du code qui ne répond jamais pareil | `post-1-3` | `SupportService.orienter`, consigne v2 dans `SpringAiAssistant` | `SupportServiceTest` (niveau 1), `SpringAiAssistantIT` (niveau 2), `EvaluationIT` (niveau 3) |
+| 1.4 Quand le fournisseur d'IA tombe | `post-1-4` | `@CircuitBreaker` + `planB` dans `SpringAiAssistant`, `application.yml` | `RetryEtPlanBTest`, `OllamaRetryParDefautTest`, `OllamaTimeoutTest` |
 
 ## Architecture
 
@@ -49,7 +50,7 @@ support/                 assistant de support client
 
 | Commande | Plugin | Périmètre |
 |---|---|---|
-| `./mvnw test` | Surefire | Classes `*Test` : tests unitaires sur un `ChatModel` de test. Aucun appel à un LLM. |
+| `./mvnw test` | Surefire | Classes `*Test` : tests unitaires et tests `@SpringBootTest` sur un `ChatModel` de test ou un serveur HTTP de test. Aucun appel à un LLM. |
 | `./mvnw verify` | Surefire + Failsafe | Ajoute les classes `*IT`, exécutées contre Ollama (`http://localhost:11434`, modèle `llama3.2`). |
 
 - Les `*IT` sont conditionnés par `@EnabledIf("…OllamaDisponible#enLocal")` : désactivés si `GET /api/tags` ne répond pas en 1 s. `EvaluationIT` exige en plus le modèle `bespoke-minicheck` (`OllamaDisponible#avecJuge`).
@@ -65,6 +66,8 @@ Conditions : Ollama en local, `llama3.2` (3,2 B paramètres, Q4_K_M), Apple M4 P
 |---|---|---|
 | 1.2 | `validateSchema()` valide la structure JSON, pas les contraintes Bean Validation : une `urgence` hors `[1, 5]` passe le schéma, `@Min`/`@Max` la rejettent. | `SortieStructureeSpringAiTest`, `ModesSortieStructureeIT` |
 | 1.3 | Évaluation sur 10 tickets de référence (juge `bespoke-minicheck`) : 2/10 en sortie structurée par défaut, 5/10 en sortie native (`useProviderStructuredOutput()`), 9/10 avec la consigne v2 et `temperature = 0`. | `EvaluationIT` |
+| 1.4 | `spring.ai.retry.max-attempts` compte les relances : appels = 1 + `max-attempts`. Valeurs par défaut du starter Ollama : 10 relances sur HTTP 503 (11 appels), aucune sur HTTP 400. | `RetryEtPlanBTest`, `OllamaRetryParDefautTest` |
+| 1.4 | `spring.http.clients.read-timeout=1s` interrompt l'appel en ≈ 1 015 ms face à un serveur qui répond en 5 s. Portée : tous les clients HTTP de l'application. | `OllamaTimeoutTest` |
 
 ---
 

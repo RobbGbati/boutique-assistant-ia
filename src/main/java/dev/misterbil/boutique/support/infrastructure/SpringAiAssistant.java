@@ -4,6 +4,7 @@ import dev.misterbil.boutique.support.domaine.AnalyseTicket;
 import dev.misterbil.boutique.support.domaine.AssistantSupport;
 import dev.misterbil.boutique.support.domaine.Question;
 import dev.misterbil.boutique.support.domaine.Reponse;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,11 +41,20 @@ class SpringAiAssistant implements AssistantSupport {
 		this.validator = validator;
 	}
 
+	/**
+	 * Post 1.4 : le circuit breaker et le plan B posés sur l'adapter.
+	 */
 	@Override
+	@CircuitBreaker(name = "assistant", fallbackMethod = "planB")
 	public Reponse repondre(Question q) {
 		return new Reponse(chat.prompt()
 				.user(q.texte())
 				.call().content());
+	}
+
+	Reponse planB(Question q, Throwable e) {
+		log.warn("Plan B déclenché : {}", e.toString());
+		return Reponse.indisponible();
 	}
 
 	/**

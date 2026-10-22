@@ -5,6 +5,7 @@ import dev.misterbil.boutique.support.domaine.AssistantSupport;
 import dev.misterbil.boutique.support.domaine.Categorie;
 import dev.misterbil.boutique.support.domaine.Destination;
 import dev.misterbil.boutique.support.domaine.Reponse;
+import dev.misterbil.boutique.support.domaine.StatutTraitement;
 import dev.misterbil.boutique.support.domaine.SupportService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,10 +25,21 @@ class SupportServiceTest {
 	private final SupportService support = new SupportService(assistant);
 
 	@Test
-	void renvoie_la_reponse_de_l_assistant() {
+	void traite_le_ticket_quand_l_assistant_repond() {
 		when(assistant.repondre(any())).thenReturn(new Reponse("Commande 42 : expédiée"));
 
-		assertThat(support.traiter("Où est ma commande 42 ?")).isEqualTo(new Reponse("Commande 42 : expédiée"));
+		var res = support.traiter("Où est ma commande 42 ?");
+
+		assertThat(res.statut()).isEqualTo(StatutTraitement.TRAITE);
+	}
+
+	@Test
+	void passe_a_un_conseiller_quand_l_assistant_est_indisponible() {
+		when(assistant.repondre(any())).thenReturn(Reponse.indisponible());
+
+		var res = support.traiter("Où est ma commande 42 ?");
+
+		assertThat(res.statut()).isEqualTo(StatutTraitement.EN_ATTENTE_CONSEILLER);
 	}
 
 	/** Routage : chaque catégorie va à son équipe. */

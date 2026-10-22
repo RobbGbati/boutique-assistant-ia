@@ -7,3 +7,16 @@ spring:
       chat:
         # Sans cette ligne, Spring AI cherche "mistral" (valeur par défaut)
         model: llama3.2
+
+# Post 1.4 : circuit breaker autour de l'adapter IA
+resilience4j:
+  circuitbreaker:
+    instances:
+      assistant:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        slow-call-duration-threshold: 5s
+        slow-call-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 2
