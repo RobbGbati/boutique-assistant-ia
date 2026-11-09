@@ -8,6 +8,7 @@ import dev.misterbil.boutique.support.domaine.Reponse;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.validation.Validator;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
@@ -50,6 +51,14 @@ class SpringAiAssistant implements AssistantSupport {
 			Résumé : une phrase de 200 caractères maximum qui reformule ce que dit le client.
 			N'ajoute aucun fait absent du ticket. Ne donne ni conseil ni consigne.
 			""";
+
+	/**
+	 * Post 3.1 : l'outil commande n'est ajouté que si la question cite un numéro de commande. C'est le code qui décide, pas le modèle.
+	 * Mesuré sur llama3.2 (PolitiqueDansLePromptIT) : avec la définition de l'outil dans chaque requête,
+	 * la question des retours passe de 10/10 à 4–6/10 réponses justes, même avec la bonne page dans le prompt.
+	 * Limite : une relance sans numéro (« Et elle arrive quand ? ») part sans outil.
+	 */
+	static final Pattern NUMERO_DE_COMMANDE = Pattern.compile("(?i)commande\\D{0,15}\\d+");
 
 	private final ChatClient chat;
 	private final Validator validator;
@@ -94,14 +103,22 @@ class SpringAiAssistant implements AssistantSupport {
 	 * Post 2.3 : mémoire de conversation indexée par clientId. Le LLM est sans état : l'application stocke l'historique et le renvoie à chaque appel.
 	 * Post 2.4 : l'outil commande. Le client est passé dans le contexte de l'outil :
 	 * il vient de la session et n'est jamais envoyé au modèle.
+	 * Post 3.1 : l'outil n'est ajouté que si la question cite une commande.
 	 */
 	private ChatClient.ChatClientRequestSpec conversation(Question q) {
-		return chat.prompt()
+		var requete = chat.prompt()
 				.user(q.texte())
 				.advisors(memoire)
-				.advisors(a -> a.param(ChatMemory.CONVERSATION_ID, q.clientId()))
-				.tools(outilsCommande)
-				.toolContext(Map.of(OutilsCommande.CLIENT_ID, q.clientId()));
+				.advisors(a -> a.param(ChatMemory.CONVERSATION_ID, q.clientId()));
+		if (citeUneCommande(q.texte())) {
+			requete = requete.tools(outilsCommande)
+					.toolContext(Map.of(OutilsCommande.CLIENT_ID, q.clientId()));
+		}
+		return requete;
+	}
+
+	static boolean citeUneCommande(String texte) {
+		return NUMERO_DE_COMMANDE.matcher(texte).find();
 	}
 
 	Reponse planB(Question q, Throwable e) {

@@ -45,6 +45,7 @@ Chaque classe indique le post qui l'a introduite ou modifiée : rechercher `Post
 | 2.6 Serveur MCP | `post-2-6` | `stock/infrastructure/OutilsStockMcp` (`@McpTool`), `application.yml` | `ServeurMcpTest` |
 | 2.7 Métriques | `post-2-7` | Actuator + `management.endpoints` dans `application.yml` | `ObservabiliteIT` |
 | 2.8 Démo complète | `post-2-8` | `src/main/resources/static/index.html` | tous |
+| 3.1 Pourquoi ton assistant invente | `post-3-1` | corpus `src/main/resources/docs/`, outil commande ajouté seulement si la question cite une commande (`SpringAiAssistant.citeUneCommande`) | `BancRagTest`, `OutilSurDemandeTest`, `PolitiqueDansLePromptIT` |
 
 ## Architecture
 

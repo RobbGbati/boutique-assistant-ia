@@ -1,0 +1,142 @@
+[
+  {
+    "id": "R01",
+    "question": "Je peux renvoyer un article ouvert ?",
+    "attendu": "Oui, s'il est complet, en bon état, non porté à l'extérieur et avec son étiquette, dans les 30 jours.",
+    "source": "politique-retours.md",
+    "section": "Articles ouverts"
+  },
+  {
+    "id": "R02",
+    "question": "J'ai combien de temps pour renvoyer un article ?",
+    "attendu": "30 jours à compter de la réception du colis.",
+    "source": "politique-retours.md",
+    "section": "Délai de retour"
+  },
+  {
+    "id": "R03",
+    "question": "Je peux renvoyer un maillot de bain dont j'ai retiré le film d'hygiène ?",
+    "attendu": "Non, un maillot de bain sans son film d'hygiène n'est ni repris ni échangé.",
+    "source": "politique-retours.md",
+    "section": "Articles non retournables"
+  },
+  {
+    "id": "R04",
+    "question": "Le retour est gratuit ?",
+    "attendu": "Oui en point relais. L'enlèvement à domicile coûte 5,90 €, déduits du remboursement.",
+    "source": "politique-retours.md",
+    "section": "Faire un retour"
+  },
+  {
+    "id": "R05",
+    "question": "Quand est-ce que je serai remboursé après mon retour ?",
+    "attendu": "Sous 10 jours après la réception du colis à l'entrepôt, sur le moyen de paiement de la commande.",
+    "source": "politique-retours.md",
+    "section": "Remboursement"
+  },
+  {
+    "id": "R06",
+    "question": "Je peux échanger mon pull contre une taille au-dessus ?",
+    "attendu": "Pas d'échange direct : il faut faire un retour puis passer une nouvelle commande.",
+    "source": "politique-retours.md",
+    "section": "Échange"
+  },
+  {
+    "id": "L01",
+    "question": "Vous livrez en Suisse ?",
+    "attendu": "Non. Boutique Bil livre en France métropolitaine, en Belgique et au Luxembourg.",
+    "source": "livraison.md",
+    "section": "Pays livrés"
+  },
+  {
+    "id": "L02",
+    "question": "En combien de temps je reçois ma commande en livraison standard ?",
+    "attendu": "2 à 4 jours ouvrés après l'expédition, qui a lieu sous 24 h ouvrées.",
+    "source": "livraison.md",
+    "section": "Délais"
+  },
+  {
+    "id": "L03",
+    "question": "À partir de quel montant la livraison est gratuite ?",
+    "attendu": "La livraison standard est gratuite dès 60 € d'achat. L'express ne l'est jamais.",
+    "source": "livraison.md",
+    "section": "Frais de livraison"
+  },
+  {
+    "id": "L04",
+    "question": "Mon suivi ne bouge plus depuis une semaine, je fais quoi ?",
+    "attendu": "Contacter le service client : au-delà de 5 jours ouvrés, une enquête est ouverte auprès du transporteur.",
+    "source": "livraison.md",
+    "section": "Colis en retard ou perdu"
+  },
+  {
+    "id": "L05",
+    "question": "Je peux changer l'adresse de livraison après l'expédition ?",
+    "attendu": "Non, l'adresse ne se modifie que tant que la commande n'est pas expédiée.",
+    "source": "livraison.md",
+    "section": "Changer l'adresse de livraison"
+  },
+  {
+    "id": "P01",
+    "question": "Je peux payer par chèque ?",
+    "attendu": "Non. Carte bancaire, PayPal et Apple Pay uniquement.",
+    "source": "paiement.md",
+    "section": "Moyens de paiement"
+  },
+  {
+    "id": "P02",
+    "question": "Ma banque affiche deux fois le montant de ma commande, j'ai été débité deux fois ?",
+    "attendu": "Non, c'est une pré-autorisation : elle disparaît sous 7 jours. La carte est débitée à l'expédition.",
+    "source": "paiement.md",
+    "section": "Moment du débit"
+  },
+  {
+    "id": "P03",
+    "question": "Je peux cumuler deux codes promo ?",
+    "attendu": "Non, un seul code promo par commande.",
+    "source": "paiement.md",
+    "section": "Codes promo"
+  },
+  {
+    "id": "P04",
+    "question": "Le paiement en plusieurs fois est possible ?",
+    "attendu": "Oui, en 3 fois sans frais par carte bancaire, dès 100 € d'achat.",
+    "source": "paiement.md",
+    "section": "Paiement en plusieurs fois"
+  },
+  {
+    "id": "F01",
+    "question": "Je peux annuler ma commande ?",
+    "attendu": "Oui dans « Mon compte » tant qu'elle n'est pas expédiée. Sinon, il faut attendre le colis et faire un retour.",
+    "source": "faq.md",
+    "section": "Annuler une commande"
+  },
+  {
+    "id": "H01",
+    "question": "Vos vêtements ont une garantie de 5 ans ?",
+    "attendu": "L'information n'est pas dans les documents : l'assistant le dit et n'invente pas.",
+    "source": null,
+    "section": null
+  },
+  {
+    "id": "H02",
+    "question": "Vous avez un programme de fidélité avec des points ?",
+    "attendu": "L'information n'est pas dans les documents : l'assistant le dit et n'invente pas.",
+    "source": null,
+    "section": null
+  },
+  {
+    "id": "H03",
+    "question": "Vous reprenez mes vieux vêtements pour les recycler ?",
+    "attendu": "L'information n'est pas dans les documents : l'assistant le dit et n'invente pas.",
+    "source": null,
+    "section": null
+  },
+  {
+    "id": "H04",
+    "question": "Combien coûte le pull en laine bleu ?",
+    "attendu": "L'information n'est pas dans les documents : l'assistant le dit et n'invente pas.",
+    "source": null,
+    "section": null
+  }
+]
