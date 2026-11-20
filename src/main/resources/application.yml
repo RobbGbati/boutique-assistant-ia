@@ -7,6 +7,9 @@ spring:
       chat:
         # Sans cette ligne, Spring AI cherche "mistral" (valeur par défaut)
         model: llama3.2
+      embedding:
+        # Post 3.2 : sans cette ligne, Spring AI cherche "mxbai-embed-large" (valeur par défaut)
+        model: nomic-embed-text
     # Post 2.6 : le service Stock exposé en MCP, sur /mcp
     mcp:
       server:

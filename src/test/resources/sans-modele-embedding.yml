@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: boutique-assistant-ia
+  ai:
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        # Sans cette ligne, Spring AI cherche "mistral" (valeur par défaut)
+        model: llama3.2
+    # Post 2.6 : le service Stock exposé en MCP, sur /mcp
+    mcp:
+      server:
+        name: boutique-stock
+        protocol: STREAMABLE
+
+# Post 1.4 : circuit breaker autour de l'adapter IA
+resilience4j:
+  circuitbreaker:
+    instances:
+      assistant:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        slow-call-duration-threshold: 5s
+        slow-call-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 2
+
+# Post 2.7 : exposer les métriques (gen_ai.client.operation, gen_ai.client.token.usage, spring.ai.tool...)
+# Le texte des prompts et des réponses n'est pas exporté : log-prompt et log-completion restent à false.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics
