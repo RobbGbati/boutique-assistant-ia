@@ -1,0 +1,13 @@
+# Post 3.3 : Postgres + l'extension pgvector, démarré par Spring Boot (spring-boot-docker-compose)
+services:
+  pgvector:
+    image: 'pgvector/pgvector:pg17'
+    environment:
+      - 'POSTGRES_DB=boutique'
+      - 'POSTGRES_USER=boutique'
+      - 'POSTGRES_PASSWORD=boutique'
+    ports:
+      - '5432'
+    labels:
+      # Spring Boot reconnaît Postgres au nom de l'image (postgres) : pgvector/pgvector a besoin de ce label
+      org.springframework.boot.service-connection: postgres

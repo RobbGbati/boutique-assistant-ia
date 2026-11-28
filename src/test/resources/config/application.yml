@@ -1,0 +1,11 @@
+# Post 3.3 : réglages des tests, ajoutés à src/main/resources/application.yml
+spring:
+  docker:
+    compose:
+      # Par défaut, Spring Boot ignore compose.yaml dans les tests : la base PgVector est nécessaire au contexte
+      skip:
+        in-tests: false
+boutique:
+  ingestion:
+    # Les tests lancent l'ingestion eux-mêmes (IngestionIT)
+    au-demarrage: false

@@ -10,6 +10,10 @@ spring:
       embedding:
         # Post 3.2 : sans cette ligne, Spring AI cherche "mxbai-embed-large" (valeur par défaut)
         model: nomic-embed-text
+    # Post 3.3 : la table vector_store est créée au premier démarrage (false par défaut)
+    vectorstore:
+      pgvector:
+        initialize-schema: true
     # Post 2.6 : le service Stock exposé en MCP, sur /mcp
     mcp:
       server:

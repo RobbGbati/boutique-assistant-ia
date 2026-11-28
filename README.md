@@ -3,16 +3,20 @@
 Projet fil rouge de la série IA de **dev_mister_bil** : une boutique en ligne en Spring Boot,
 à laquelle on ajoute un assistant de support basé sur un LLM. Chaque post de la série correspond à un tag git.
 
-Stack : Java 25, Spring Boot 4.1.1, Spring AI 2.0.1, Resilience4j 2.4.0, Ollama en local (modèle `llama3.2`).
+Stack : Java 25, Spring Boot 4.1.1, Spring AI 2.0.1, Resilience4j 2.4.0, Ollama en local (modèles `llama3.2` et `nomic-embed-text`), PgVector (Postgres + pgvector) à partir du post 3.3.
 
 ## Démarrer
 
-Prérequis : Java 25 et [Ollama](https://ollama.com).
+Prérequis : Java 25, [Ollama](https://ollama.com) et, **à partir du tag `post-3-3`, Docker** (la base PgVector).
 
 ```bash
 ollama pull llama3.2          # modèle de 2 Go, exécuté en local, sans clé d'API
-./mvnw spring-boot:run
+ollama pull nomic-embed-text  # modèle d'embedding (à partir du post 3.2)
+./mvnw spring-boot:run        # à partir du post 3.3 : démarre aussi Postgres + pgvector (compose.yaml)
 ```
+
+À partir du post 3.3, les tests aussi ont besoin de Docker : la base est démarrée par Docker Compose
+(`src/test/resources/config/application.yml`).
 
 Ouvrir http://localhost:8080, choisir un client (Paul ou Léa), se connecter, poser une question.
 
@@ -46,6 +50,8 @@ Chaque classe indique le post qui l'a introduite ou modifiée : rechercher `Post
 | 2.7 Métriques | `post-2-7` | Actuator + `management.endpoints` dans `application.yml` | `ObservabiliteIT` |
 | 2.8 Démo complète | `post-2-8` | `src/main/resources/static/index.html` | tous |
 | 3.1 Pourquoi ton assistant invente | `post-3-1` | corpus `src/main/resources/docs/`, outil commande ajouté seulement si la question cite une commande (`SpringAiAssistant.citeUneCommande`) | `BancRagTest`, `OutilSurDemandeTest`, `PolitiqueDansLePromptIT` |
+| 3.2 Les embeddings | `post-3-2` | `spring.ai.ollama.embedding.model` dans `application.yml` | `EmbeddingsIT`, `ModeleEmbeddingParDefautIT` |
+| 3.3 PgVector : ranger tes documents | `post-3-3` | `compose.yaml` (image `pgvector/pgvector` + label `service-connection`), `support/infrastructure/IngestionDocuments` (lire, découper, effacer le fichier, ranger) | `IngestionIT`, `ChangementDeModeleIT` |
 
 ## Architecture
 

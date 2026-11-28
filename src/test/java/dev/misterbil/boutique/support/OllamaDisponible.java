@@ -24,6 +24,12 @@ final class OllamaDisponible {
 		return modeles != null && modeles.contains("\"bespoke-minicheck");
 	}
 
+	/** Post 3.3 : le piège du changement de modèle d'embedding a besoin d'all-minilm (384 dimensions). */
+	static boolean avecAllMinilm() {
+		var modeles = modeles();
+		return modeles != null && modeles.contains("\"all-minilm");
+	}
+
 	/** Liste brute des modèles installés (JSON de /api/tags), ou null si Ollama ne répond pas. */
 	private static String modeles() {
 		try (var client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(1)).build()) {

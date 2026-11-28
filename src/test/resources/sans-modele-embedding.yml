@@ -7,11 +7,23 @@ spring:
       chat:
         # Sans cette ligne, Spring AI cherche "mistral" (valeur par défaut)
         model: llama3.2
+    vectorstore:
+      pgvector:
+        initialize-schema: true
     # Post 2.6 : le service Stock exposé en MCP, sur /mcp
     mcp:
       server:
         name: boutique-stock
         protocol: STREAMABLE
+  # Réglages de test, repris de config/application.yml (ignoré quand spring.config.name change)
+  docker:
+    compose:
+      skip:
+        in-tests: false
+
+boutique:
+  ingestion:
+    au-demarrage: false
 
 # Post 1.4 : circuit breaker autour de l'adapter IA
 resilience4j:
